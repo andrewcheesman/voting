@@ -148,7 +148,8 @@ write.csv(sbs, "sbs.csv", row.names = F)
 c <- cor(sbs[,3:8])
 corrplot(c)
 
-
+d <- cor(bas[,24:48])
+corrplot(d, type = "upper")
 
 
 
