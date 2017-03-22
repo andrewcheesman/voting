@@ -3,6 +3,7 @@
 # Population data from US Census https://www.census.gov/support/USACdataDownloads.html
 
 library(ggplot2)
+library(corrplot)
 
 vot <- read.csv("cty_data.csv", stringsAsFactors = F)
 
@@ -33,6 +34,8 @@ vot2 <- vot[!(vot$fips_code %in% c(0, 1000, 2000, 4000, 5000, 6000, 8000, 9000,
 bas <- merge(pop2, vot2[,c(-2)], by = "fips_code")
 rm(pop, pop1, pop2, vot, vot2)
 
+# derived vars
+
 bas$pd08 <- bas$d2008 / bas$p2010
 bas$pr08 <- bas$r2008 / bas$p2010
 bas$po08 <- bas$o2008 / bas$p2010
@@ -55,20 +58,95 @@ bas$mg16 <- bas$pd16 - bas$pr16
 bas$tn12 <- bas$pt12 - bas$pt08
 bas$tn16 <- bas$pt16 - bas$pt12
 
+# wide to long, for ggplot
 
+pl <- data.frame()
+for (i in 24:35) {
+  
+  fill <- data.frame(tp = substr(colnames(bas)[i], 2, 2),
+                     yr = 2000+as.numeric(substr(colnames(bas)[i], 3, 4)),
+                     fc = bas$fips_code,
+                     ct = bas$county,
+                     val = bas[,i])
+  pl <- rbind(pl, fill)
+  
+  }
 
+# Measuring distributions of voter turnout by party and overall across years
+# Omitting 'other' because it's wonky
 
+plt <- ggplot(pl[pl$tp != "o",], aes(x = val, colour = pl[pl$tp != "o","tp"])) +
+  geom_freqpoly(bins = 1000) +
+  facet_wrap( ~ yr, nrow = 3) + 
+  xlim(0, 1) +
+  theme_bw()
+plt
 
+# Creating vars that measure d, r, and t change in turnout pct from ['08 to '12] and ['12 to '16]
 
+bas$tdd12 <- bas$pd12 - bas$pd08
+bas$trd12 <- bas$pr12 - bas$pr08
+bas$tod12 <- bas$po12 - bas$po08
+bas$ttd12 <- bas$pt12 - bas$pt08
 
+bas$tdd16 <- bas$pd16 - bas$pd12
+bas$trd16 <- bas$pr16 - bas$pr12
+bas$tod16 <- bas$po16 - bas$po12
+bas$ttd16 <- bas$pt16 - bas$pt12
 
+pl2 <- data.frame()
+for (i in 41:48) {
+  
+  fill2 <- data.frame(tp = substr(colnames(bas)[i], 2, 2),
+                      yr = 2000+as.numeric(substr(colnames(bas)[i], 4, 5)),
+                      fc = bas$fips_code,
+                      ct = bas$county,
+                      val = bas[,i])
+  pl2 <- rbind(pl2, fill2)
+  
+}
 
+plt2 <- ggplot(pl2[pl2$tp != "o",], aes(x = val, colour = pl2[pl2$tp != "o","tp"])) +
+  geom_freqpoly(bins = 1000) +
+  facet_wrap( ~ yr, nrow = 3) + 
+  xlim(0, 0.25) +
+  theme_bw()
+plt2
 
+# Comparing metrics - change in turnout and 2016 turnout
 
+sbs <- data.frame("fips_code" = bas$fips_code, 
+                  "county" = bas$county,
+                  "pd16" = bas$pd16,
+                  "pr16" = bas$pr16,
+                  "pt16" = bas$pt16, 
+                  "dd16" = bas$tdd16,
+                  "dr16" = bas$trd16,
+                  "dt16" = bas$ttd16)
 
+pl3 <- data.frame()
+for (i in 3:8) {
+  
+  fill3 <- data.frame(ms = substr(colnames(sbs)[i], 1, 1),
+                      tp = substr(colnames(sbs)[i], 2, 2),
+                      yr = 2000+as.numeric(substr(colnames(sbs)[i], 3, 4)),
+                      fc = sbs$fips_code,
+                      ct = sbs$county,
+                      val = sbs[,i])
+  pl3 <- rbind(pl3, fill3)
+  
+}
 
+plt3 <- ggplot(pl3, aes(x = ct, y = val)) +
+  geom_bar(stat = "identity", position = "identity") +
+  facet_wrap( ~ yr + ms + tp, ncol = 3) + 
+  theme_bw()
+plt3
 
+write.csv(sbs, "sbs.csv", row.names = F)
 
+c <- cor(sbs[,3:8])
+corrplot(c)
 
 
 
