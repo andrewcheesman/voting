@@ -1,0 +1,18 @@
+{
+    "contents" : "# Looking at count voting history \n# Voting data from https://github.com/tonmcg/County_Level_Election_Results_12-16\n# Population data from US Census https://www.census.gov/support/USACdataDownloads.html\n\nlibrary(ggplot2)\n\nvot <- read.csv(\"cty_data.csv\", stringsAsFactors = F)\n\ncolnames(vot) <- c(\"fips_code\", \"county\", \n                   \"t2008\", \"d2008\", \"r2008\", \"o2008\",\n                   \"t2012\", \"d2012\", \"r2012\", \"o2012\",\n                   \"t2016\", \"d2016\", \"r2016\", \"o2016\")\n\npop <- read.csv(\"cty_pop.csv\", stringsAsFactors = F)\n\npop1 <- pop[,c(\"Area_name\", \"STCOU\", \"POP010130D\", \"POP010140D\", \"POP010150D\", \"POP010160D\", \"POP010170D\", \"POP010180D\", \"POP010190D\", \"POP010200D\", \"POP010210D\")]\ncolnames(pop1) <- c(\"county\", \"fips_code\", \"p1930\",  \"p1940\",  \"p1950\",  \"p1960\",  \"p1970\",  \"p1980\",  \"p1990\",  \"p2000\",  \"p2010\")\n\npop2 <- pop1[!(pop1$fips_code %in% c(0, 1000, 2000, 4000, 5000, 6000, 8000, 9000, \n                                     10000, 11000, 12000, 13000, 15000, 16000, 17000, 18000, 19000, \n                                     20000, 21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, \n                                     30000, 31000, 32000, 33000, 34000, 35000, 36000, 37000, 38000, 39000, \n                                     40000, 41000, 42000, 44000, 45000, 46000, 47000, 48000, 49000, \n                                     50000, 51000, 53000, 54000, 55000, 56000, 60000, 66000, 72000, 78000)),]\n\nvot2 <- vot[!(vot$fips_code %in% c(0, 1000, 2000, 4000, 5000, 6000, 8000, 9000, \n                                   10000, 11000, 12000, 13000, 15000, 16000, 17000, 18000, 19000, \n                                   20000, 21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, \n                                   30000, 31000, 32000, 33000, 34000, 35000, 36000, 37000, 38000, 39000, \n                                   40000, 41000, 42000, 44000, 45000, 46000, 47000, 48000, 49000, \n                                   50000, 51000, 53000, 54000, 55000, 56000, 60000, 66000, 72000, 78000)),]\n\nbas <- merge(pop2, vot2[,c(-2)], by = \"fips_code\")\nrm(pop, pop1, pop2, vot, vot2)\n\nbas$pd08 <- bas$d2008 / bas$p2010\nbas$pr08 <- bas$r2008 / bas$p2010\nbas$po08 <- bas$o2008 / bas$p2010\nbas$pt08 <- bas$t2008 / bas$p2010\n\nbas$pd12 <- bas$d2012 / bas$p2010\nbas$pr12 <- bas$r2012 / bas$p2010\nbas$po12 <- bas$o2012 / bas$p2010\nbas$pt12 <- bas$t2012 / bas$p2010\n\nbas$pd16 <- bas$d2016 / bas$p2010\nbas$pr16 <- bas$r2016 / bas$p2010\nbas$po16 <- bas$o2016 / bas$p2010\nbas$pt16 <- bas$t2016 / bas$p2010\n\nbas$mg08 <- bas$pd08 - bas$pr08\nbas$mg12 <- bas$pd12 - bas$pr12\nbas$mg16 <- bas$pd16 - bas$pr16\n\nbas$tn12 <- bas$pt12 - bas$pt08\nbas$tn16 <- bas$pt16 - bas$pt12\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+    "created" : 1490193408796.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3849479741",
+    "id" : "7E57271B",
+    "lastKnownWriteTime" : 1490198092,
+    "path" : "~/voting/working1.R",
+    "project_path" : "working1.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "type" : "r_source"
+}
